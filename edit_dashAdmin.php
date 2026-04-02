@@ -1,8 +1,32 @@
 <?php
+session_start();
 include "koneksi.php";
 
+// 1. Cek apakah user sudah login?
+if (!isset($_SESSION["user"])) {
+    header("Location: login.php");
+    exit();
+}
+
+// 2. Cek apakah role-nya Admin? (Sangat Penting!)
+if ($_SESSION["user"]["role"] != "admin") {
+    echo "<script>
+            alert('Akses Ditolak! Anda bukan Admin.');
+            window.location='dashboard_pelanggan.php';
+          </script>";
+    exit();
+}
+
+// 3. Jika lolos, baru ambil data untuk diedit
 $id = $_GET["id"];
-$data = $koneksi->query("SELECT * FROM orders WHERE id='$id'")->fetch_assoc();
+$query = $koneksi->query("SELECT * FROM orders WHERE id='$id'");
+$data = $query->fetch_assoc();
+
+// Cek jika data tidak ditemukan 
+if (!$data) {
+    header("Location: dashboard_admin.php");
+    exit();
+}
 ?>
 
 <!DOCTYPE html>
